@@ -1,6 +1,8 @@
 #include <FastGPIO.h>
+#include <Servo.h>
 #include <ros.h>
 #include <std_msgs/Float64.h>
+
 /*
  * Tire is 30.48cm radius
  * Circumference is 191.51cm
@@ -8,14 +10,23 @@
  * Distance is 0.18cm per pulse 
  * Distance per window 128P 23.9 cm
  * 
- * Add dead band
+ * TODO Add dead band
  */
 
 #define A 2 // pin number of A pulse
 #define B 3 // pin number of B pulse
+#define ACTUATOR_PIN 5 // pin for the servo singnal
+
 
 // ros node object
 ros::NodeHandle nh;
+
+std_msgs::Float64 vel; // the ros message for out velocity
+ros::Publisher encoder_pub("encoder_velocity", &vel); // the publisher of the velocty
+
+Servo actuator; // servo object for the linear actuator
+void actuator_callback(const std_msgs::Float64 &cmd_msg); // method def used for actuator call back 
+ros::Subscriber<std_msgs::Float64> actuator_sub("linear_drive_actuator", actuator_callback);
 
 // last value of the a and b pulses
 bool A_last_val;
@@ -29,15 +40,14 @@ float distance; // distance we have gone
 float velocity; // out velocity
 unsigned long ros_rate; // the rate in milliseconds to refresh ros
 
-std_msgs::Float64 vel; // the ros message for out velocity
-
-ros::Publisher p("encoder_velocity", &vel); // the publisher of the velocty
-
 
 void setup() {
-  // start ros and start publisher
+  // start ros, start publisher, and subscriber
   nh.initNode();
-  nh.advertise(p);
+  nh.advertise(encoder_pub);
+  nh.subscribe(actuator_sub);
+
+  actuator.attach(ACTUATOR_PIN); // set pin to be used for actuator
 
   // add pins A and B to the fast GPIO, we use this to not miss encoder pulses
   FastGPIO::Pin<A>::setInput();
@@ -91,7 +101,7 @@ void loop() {
     vel.data=velocity;
   }else{
     loop_time = millis();
-    p.publish(&vel);
+    encoder_pub.publish(&vel);
     nh.spinOnce();
   }
 }
@@ -118,3 +128,8 @@ void direction(bool A_val, bool B_val){
   A_last_val = A_val;
   B_last_val = B_val;
 }
+
+void actuator_callback(const std_msgs::Float64 &cmd_msg){
+  actuator.write(cmd_msg.data); //move actuator to position
+}
+
