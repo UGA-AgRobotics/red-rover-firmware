@@ -1,5 +1,6 @@
 #include <FastGPIO.h>
-
+#include <ros.h>
+#include <std_msgs/Float64.h>
 /*
  * Tire is 30.48cm radius
  * Circumference is 191.51cm
@@ -13,19 +14,25 @@
 #define A 2
 #define B 3
 
+ros::NodeHandle nh;
+
 bool A_last_val;
 bool B_last_val;
 
 char state;
-
 int count;
-
-float distance;
-
 unsigned long last_time;
+float distance;
+float velocity;
+
+std_msgs::Float64 vel;
+
+ros::Publisher p("encoder_velocity", &vel);
+
 
 void setup() {
-  Serial.begin(9600);
+  nh.initNode();
+  nh.advertise(p);
   
   FastGPIO::Pin<A>::setInput();
   FastGPIO::Pin<B>::setInput();
@@ -34,13 +41,12 @@ void setup() {
   B_last_val = false;
 
   state = 'F';
-
   count = 0;
-
   distance = 0;
-
+  velocity = 0;
   last_time = millis();
 }
+
 
 void loop() {
   bool A_val = FastGPIO::Pin<A>::isInputHigh();
@@ -53,16 +59,17 @@ void loop() {
 
   if(count > 128){
     distance += 23.9;
-    //Serial.print(state);
-    //Serial.print(" ");    
-    //Serial.print(distance);
-    //Serial.print(" ");
-    Serial.println((distance / (millis()-last_time))/100);
+    velocity = (distance / (millis()-last_time))/100;
     count = 0;
     last_time=millis();
   }
- 
+
+  vel.data=velocity;
+  p.publish(&vel);
+  nh.spinOnce();
+  delay(10);
 }
+
 
 void direction(bool A_val, bool B_val){
   if((A_last_val && !B_last_val) && (A_val && B_val)){
