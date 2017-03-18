@@ -53,10 +53,10 @@ void loop() {
 
   if(count > 128){
     distance += 23.9;
-    Serial.print(state);
-    Serial.print(" ");    
-    Serial.print(distance);
-    Serial.print(" ");
+    //Serial.print(state);
+    //Serial.print(" ");    
+    //Serial.print(distance);
+    //Serial.print(" ");
     Serial.println((distance / (millis()-last_time))/100);
     count = 0;
     last_time=millis();
