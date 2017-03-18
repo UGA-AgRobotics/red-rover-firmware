@@ -2,6 +2,7 @@
 #include <Servo.h>
 #include <ros.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/UInt16.h>
 
 /*
  * Tire is 30.48cm radius
@@ -16,6 +17,7 @@
 #define A 2 // pin number of A pulse
 #define B 3 // pin number of B pulse
 #define ACTUATOR_PIN 5 // pin for the servo singnal
+#define THROTTLE_PIN 5 // pin for throttle servo
 
 
 // ros node object
@@ -27,6 +29,10 @@ ros::Publisher encoder_pub("encoder_velocity", &vel); // the publisher of the ve
 Servo actuator; // servo object for the linear actuator
 void actuator_callback(const std_msgs::Float64 &cmd_msg); // method def used for actuator call back 
 ros::Subscriber<std_msgs::Float64> actuator_sub("linear_drive_actuator", actuator_callback);
+
+Servo throttle; // servo object for the engine throttle
+void throttle_callback(const std_msgs::UInt16 &cmd_msg); // method def used for actuator call back 
+ros::Subscriber<std_msgs::UInt16> throttle_sub("throttle", throttle_callback);
 
 // last value of the a and b pulses
 bool A_last_val;
@@ -46,8 +52,10 @@ void setup() {
   nh.initNode();
   nh.advertise(encoder_pub);
   nh.subscribe(actuator_sub);
+  nh.subscribe(throttle_sub);
 
   actuator.attach(ACTUATOR_PIN); // set pin to be used for actuator
+  throttle.attach(THROTTLE_PIN); // set the pin for the throttle servo
 
   // add pins A and B to the fast GPIO, we use this to not miss encoder pulses
   FastGPIO::Pin<A>::setInput();
@@ -95,10 +103,10 @@ void loop() {
       distance += 23.9;
       velocity = (distance / (millis()-last_time))/100;
       count = 0;
-      last_time=millis();
+      last_time = millis();
     }
-  
     vel.data=velocity;
+    
   }else{
     loop_time = millis();
     encoder_pub.publish(&vel);
@@ -129,7 +137,27 @@ void direction(bool A_val, bool B_val){
   B_last_val = B_val;
 }
 
+
+/*
+ * param:
+ * std_msgs::Float64 &cmd_msgs: data from ROS
+ * 
+ * Move the actuator on the hydrolic pump
+ */
 void actuator_callback(const std_msgs::Float64 &cmd_msg){
   actuator.write(cmd_msg.data); //move actuator to position
+}
+
+
+/*
+ * param:
+ * std_msgs::UInt16 &cmd_msgs: this is the message coming from ROS 
+ * 
+ * return: void
+ * 
+ * Change the throttle
+ */
+void throttle_callback(const std_msgs::UInt16 &cmd_msgs){
+  throttle.write(cmd_msgs.data); //move throttle
 }
 
