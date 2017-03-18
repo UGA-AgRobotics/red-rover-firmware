@@ -22,8 +22,10 @@ bool B_last_val;
 char state;
 int count;
 unsigned long last_time;
+unsigned long loop_time;
 float distance;
 float velocity;
+unsigned long ros_rate;
 
 std_msgs::Float64 vel;
 
@@ -40,34 +42,40 @@ void setup() {
   A_last_val = false;
   B_last_val = false;
 
+  ros_rate = 100;
+
   state = 'F';
   count = 0;
   distance = 0;
   velocity = 0;
   last_time = millis();
+  loop_time = millis();
 }
 
 
 void loop() {
-  bool A_val = FastGPIO::Pin<A>::isInputHigh();
-  bool B_val = FastGPIO::Pin<B>::isInputHigh();
+  if(millis()-loop_time < ros_rate){
+    bool A_val = FastGPIO::Pin<A>::isInputHigh();
+    bool B_val = FastGPIO::Pin<B>::isInputHigh();
+    
+    if((A_last_val != A_val) || (B_last_val != B_val)){
+      count++; 
+      direction(A_val,B_val);
+    }
   
-  if((A_last_val != A_val) || (B_last_val != B_val)){
-    count++; 
-    direction(A_val,B_val);
+    if(count > 128){
+      distance += 23.9;
+      velocity = (distance / (millis()-last_time))/100;
+      count = 0;
+      last_time=millis();
+    }
+  
+    vel.data=velocity;
+  }else{
+    loop_time = millis();
+    p.publish(&vel);
+    nh.spinOnce();
   }
-
-  if(count > 128){
-    distance += 23.9;
-    velocity = (distance / (millis()-last_time))/100;
-    count = 0;
-    last_time=millis();
-  }
-
-  vel.data=velocity;
-  p.publish(&vel);
-  nh.spinOnce();
-  delay(10);
 }
 
 
