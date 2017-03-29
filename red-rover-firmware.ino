@@ -13,12 +13,15 @@
  * 
  * TODO Add dead band
  */
-
+ 
+// Digital pins
 #define A 2 // pin number of A pulse
 #define B 3 // pin number of B pulse
-#define ACTUATOR_PIN 5 // pin for the servo singnal
+#define ACTUATOR_PIN 4 // pin for the linear servo singnal
 #define THROTTLE_PIN 5 // pin for throttle servo
 
+// Analog pins
+#define PIVOT_PIN 0 // pin for the potentiometer
 
 // ros node object
 ros::NodeHandle nh;
@@ -48,12 +51,14 @@ unsigned long loop_time; // time that the entire loop has ran
 float distance; // distance we have gone
 float velocity; // out velocity
 unsigned long ros_rate; // the rate in milliseconds to refresh ros
+int angle; // the angle of pivot
 
 
 void setup() {
   // start ros, start publisher, and subscriber
   nh.initNode();
   nh.advertise(encoder_pub);
+  nh.advertise(pivot_potentiometer);
   nh.subscribe(actuator_sub);
   nh.subscribe(throttle_sub);
 
@@ -76,6 +81,7 @@ void setup() {
   count = 0;
   distance = 0;
   velocity = 0;
+  angle = 0;
 
   // init the loop timers
   last_time = millis();
