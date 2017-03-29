@@ -13,12 +13,15 @@
  * 
  * TODO Add dead band
  */
-
+ 
+// Digital pins
 #define A 2 // pin number of A pulse
 #define B 3 // pin number of B pulse
-#define ACTUATOR_PIN 5 // pin for the servo singnal
+#define ACTUATOR_PIN 4 // pin for the linear servo singnal
 #define THROTTLE_PIN 5 // pin for throttle servo
 
+// Analog pins
+#define PIVOT_PIN 0 // pin for the potentiometer
 
 // ros node object
 ros::NodeHandle nh;
@@ -27,7 +30,7 @@ std_msgs::Float64 vel; // the ros message for out velocity
 ros::Publisher encoder_pub("encoder_velocity", &vel); // the publisher of the velocty
 
 std_msgs::Float64 pivot; // ros meesage for the amount of pivot
-ros::Publisher pivot_potentiometer("pivot", &pivot); // publisher of pivot
+ros::Publisher pivot_pub("pivot", &pivot); // publisher of pivot
 
 Servo actuator; // servo object for the linear actuator
 void actuator_callback(const std_msgs::Float64 &cmd_msg); // method def used for actuator call back 
@@ -48,12 +51,14 @@ unsigned long loop_time; // time that the entire loop has ran
 float distance; // distance we have gone
 float velocity; // out velocity
 unsigned long ros_rate; // the rate in milliseconds to refresh ros
+float angle; // the angle of pivot
 
 
 void setup() {
   // start ros, start publisher, and subscriber
   nh.initNode();
   nh.advertise(encoder_pub);
+  nh.advertise(pivot_pub);
   nh.subscribe(actuator_sub);
   nh.subscribe(throttle_sub);
 
@@ -76,6 +81,7 @@ void setup() {
   count = 0;
   distance = 0;
   velocity = 0;
+  angle = 0;
 
   // init the loop timers
   last_time = millis();
@@ -101,7 +107,7 @@ void loop() {
       direction(A_val,B_val);
     }
 
-// need to figure out how to clear velocity  
+// TODO need to figure out how to clear velocity  
     if(count > 128){
       distance += 23.9;
       velocity = (distance / (millis()-last_time))/100;
@@ -109,10 +115,13 @@ void loop() {
       last_time = millis();
     }
     vel.data=velocity;
+    get_angle();
+    pivot.data = angle;
     
   }else{
     loop_time = millis();
     encoder_pub.publish(&vel);
+    pivot_pub.publish(&pivot);
     nh.spinOnce();
   }
 }
@@ -140,6 +149,10 @@ void direction(bool A_val, bool B_val){
   B_last_val = B_val;
 }
 
+
+void get_angle(){
+  angle = analogRead(PIVOT_PIN);
+}
 
 /*
  * param:
