@@ -15,10 +15,10 @@
  */
  
 // Digital pins
-#define A 2 // pin number of A pulse
-#define B 3 // pin number of B pulse
-#define ACTUATOR_PIN 4 // pin for the linear servo singnal
-#define THROTTLE_PIN 5 // pin for throttle servo
+#define A 5 // pin number of A pulse
+#define B 6 // pin number of B pulse
+#define ACTUATOR_PIN 7 // pin for the linear servo singnal
+#define THROTTLE_PIN 8 // pin for throttle servo
 
 // Analog pins
 #define PIVOT_PIN 0 // pin for the potentiometer
