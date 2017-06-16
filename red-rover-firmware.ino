@@ -129,7 +129,11 @@ void loop() {
 // TODO need to figure out how to clear velocity  
     if(count > 128){
       distance += 23.9;
-      velocity = (distance / (millis()-last_time))/100;
+      if(state == 'F'){
+        velocity = (distance / (millis()-last_time))/100;
+      }else{
+        velocity = ((distance / (millis()-last_time))/100)*-1;
+      }
       count = 0;
       last_time = millis();
     }
