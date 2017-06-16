@@ -30,7 +30,6 @@
 // Limits
 #define THROTTLE_MAX 150
 #define THROTTLE_MIN 90
-
 #define ACTUATOR_MAX 120
 #define ACTUATOR_MIN 0
 
@@ -42,18 +41,18 @@
 ros::NodeHandle nh;
 
 std_msgs::Float64 vel; // the ros message for out velocity
-ros::Publisher encoder_pub("encoder_velocity", &vel); // the publisher of the velocty
+ros::Publisher encoder_pub("driver/encoder_velocity", &vel); // the publisher of the velocty
 
 std_msgs::Float64 pivot; // ros meesage for the amount of pivot
-ros::Publisher pivot_pub("pivot", &pivot); // publisher of pivot
+ros::Publisher pivot_pub("driver/pivot", &pivot); // publisher of pivot
 
 Servo actuator; // servo object for the linear actuator
 void actuator_callback(const std_msgs::Float64 &cmd_msg); // method def used for actuator call back 
-ros::Subscriber<std_msgs::Float64> actuator_sub("linear_drive_actuator", actuator_callback);
+ros::Subscriber<std_msgs::Float64> actuator_sub("driver/linear_drive_actuator", actuator_callback);
 
 Servo throttle; // servo object for the engine throttle
 void throttle_callback(const std_msgs::UInt16 &cmd_msg); // method def used for actuator call back 
-ros::Subscriber<std_msgs::UInt16> throttle_sub("throttle", throttle_callback);
+ros::Subscriber<std_msgs::UInt16> throttle_sub("driver/throttle", throttle_callback);
 
 
 //////////////////////////////////////
