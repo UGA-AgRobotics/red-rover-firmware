@@ -13,16 +13,31 @@
  * 
  * TODO Add dead band
  */
- 
+
+
+//////////////////////////////////////
+//Config
+//////////////////////////////////////
 // Digital pins
 #define A 5 // pin number of A pulse
 #define B 6 // pin number of B pulse
-#define ACTUATOR_PIN 7 // pin for the linear servo singnal
-#define THROTTLE_PIN 8 // pin for throttle servo
+#define ACTUATOR_PIN 3 // pin for the linear servo singnal
+#define THROTTLE_PIN 4 // pin for throttle servo
 
 // Analog pins
 #define PIVOT_PIN 0 // pin for the potentiometer
 
+// Limits
+#define THROTTLE_MAX 150
+#define THROTTLE_MIN 90
+
+#define ACTUATOR_MAX 120
+#define ACTUATOR_MIN 0
+
+
+//////////////////////////////////////
+//ROS
+//////////////////////////////////////
 // ros node object
 ros::NodeHandle nh;
 
@@ -40,6 +55,10 @@ Servo throttle; // servo object for the engine throttle
 void throttle_callback(const std_msgs::UInt16 &cmd_msg); // method def used for actuator call back 
 ros::Subscriber<std_msgs::UInt16> throttle_sub("throttle", throttle_callback);
 
+
+//////////////////////////////////////
+//Global Variables
+//////////////////////////////////////
 // last value of the a and b pulses
 bool A_last_val;
 bool B_last_val;
@@ -114,6 +133,7 @@ void loop() {
       count = 0;
       last_time = millis();
     }
+    //Update data
     vel.data=velocity;
     get_angle();
     pivot.data = angle;
@@ -149,9 +169,17 @@ void direction(bool A_val, bool B_val){
   B_last_val = B_val;
 }
 
-
+/*
+ * param:
+ * 
+ * return: void
+ * 
+ * Read the pivot sensor. Conver to angle in degreese.
+ * Thanks to Tim for find out this equation.
+ */
 void get_angle(){
-  angle = analogRead(PIVOT_PIN);
+  float temp = analogRead(PIVOT_PIN);
+  angle = 30.275 * temp - 45.503;
 }
 
 /*
@@ -161,7 +189,13 @@ void get_angle(){
  * Move the actuator on the hydrolic pump
  */
 void actuator_callback(const std_msgs::Float64 &cmd_msg){
-  actuator.write(cmd_msg.data); //move actuator to position
+  if(cmd_msg.data >= ACTUATOR_MAX){
+    actuator.write(ACTUATOR_MAX);
+  }else if(cmd_msg.data <= ACTUATOR_MIN){
+    actuator.write(ACTUATOR_MIN);
+  }else{
+    actuator.write(cmd_msg.data);
+  }
 }
 
 
@@ -173,7 +207,13 @@ void actuator_callback(const std_msgs::Float64 &cmd_msg){
  * 
  * Change the throttle
  */
-void throttle_callback(const std_msgs::UInt16 &cmd_msgs){
-  throttle.write(cmd_msgs.data); //move throttle
+void throttle_callback(const std_msgs::UInt16 &cmd_msg){
+  if(cmd_msg.data >= THROTTLE_MAX){
+    throttle.write(THROTTLE_MAX);
+  }else if(cmd_msg.data <= THROTTLE_MIN){
+    throttle.write(THROTTLE_MIN);
+  }else{
+    throttle.write(cmd_msg.data);
+  }
 }
 
