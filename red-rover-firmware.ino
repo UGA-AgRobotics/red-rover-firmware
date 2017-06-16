@@ -227,3 +227,17 @@ void throttle_callback(const std_msgs::UInt16 &cmd_msg){
   }
 }
 
+
+/*
+ * param: 
+ * 
+ * return: void
+ * 
+ * TODO idk how this should be done as turning is booblean operation.
+ * Maybe we should look at having this be set up to have a number come in but
+ * it just turns on and off based on a threshold? IDk, just a thought.
+ */
+void articulation_callback(const std_msgs::){
+
+}
+
