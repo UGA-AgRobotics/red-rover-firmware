@@ -1,3 +1,8 @@
+/*
+ * Author: Brad Bazemore
+ * Licence: MIT
+ */
+
 #include <FastGPIO.h>
 #include <Servo.h>
 #include <ros.h>
@@ -172,6 +177,7 @@ void direction(bool A_val, bool B_val){
   B_last_val = B_val;
 }
 
+
 /*
  * param:
  * 
@@ -184,6 +190,7 @@ void get_angle(){
   float temp = analogRead(PIVOT_PIN);
   angle = 30.275 * temp - 45.503;
 }
+
 
 /*
  * param:
