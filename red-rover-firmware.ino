@@ -114,7 +114,7 @@ void setup() {
 
   // status light
   pinMode(13, OUTPUT);
-  digitalWrite(13, LOW);
+  digitalWrite(13, HIGH);
 
   // add pins A and B to the fast GPIO, we use this to not miss encoder pulses
   FastGPIO::Pin<A>::setInput();
@@ -149,11 +149,11 @@ void setup() {
  * and distance from the encoder. It will then update ros every ros_rate
  */
 void loop() {
-  while(!nh.connected()){
-    digitalWrite(13, LOW);
-    allStop();
-  }
-  digitalWrite(13, HIGH);
+//  while(!nh.connected()){
+//    digitalWrite(13, LOW);
+//    allStop();
+//  }
+//  digitalWrite(13, HIGH);
   
   if(millis()-loop_time < ros_rate){
     bool A_val = FastGPIO::Pin<A>::isInputHigh();
@@ -206,7 +206,6 @@ void direction(bool A_val, bool B_val){
   }else if((!A_last_val && B_last_val) && (A_val && B_val)){
     state = 'B';
   }
-
   A_last_val = A_val;
   B_last_val = B_val;
 }
@@ -234,9 +233,11 @@ void get_angle(){
  */
 void actuator_callback(const std_msgs::Float64 &cmd_msg){
   if(cmd_msg.data >= ACTUATOR_MAX){
+    nh.logwarn("D1");
     actuator.write(ACTUATOR_MAX);
   }else if(cmd_msg.data <= ACTUATOR_MIN){
     actuator.write(ACTUATOR_MIN);
+    nh.logwarn("D2");
   }else{
     actuator.write(cmd_msg.data);
   }
@@ -254,8 +255,10 @@ void actuator_callback(const std_msgs::Float64 &cmd_msg){
 void throttle_callback(const std_msgs::UInt16 &cmd_msg){
   if(cmd_msg.data >= THROTTLE_MAX){
     throttle.write(THROTTLE_MAX);
+    nh.logwarn("T1");
   }else if(cmd_msg.data <= THROTTLE_MIN){
     throttle.write(THROTTLE_MIN);
+    nh.logwarn("T2");
   }else{
     throttle.write(cmd_msg.data);
   }
@@ -282,6 +285,7 @@ void articulation_callback(const std_msgs::UInt8 &cmd_msg){
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, HIGH);
   }else{
+    nh.logwarn("A1");
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, LOW);
   }
@@ -299,6 +303,7 @@ void allStop(){
   digitalWrite(LEFT_PIN, LOW);
   digitalWrite(RIGHT_PIN, LOW);
   actuator.write(ACTUATOR_HOME);
-  throttle.write(THROTTLE_HOME); 
+  throttle.write(THROTTLE_HOME);
+  digitalWrite(13, LOW); 
 }
 
