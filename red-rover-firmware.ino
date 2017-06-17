@@ -275,13 +275,13 @@ void throttle_callback(const std_msgs::UInt8 &cmd_msg){
  * it just turns on and off based on a threshold? IDk, just a thought.
  */
 void articulation_callback(const std_msgs::Float64 &cmd_msg){
-  if(cmd_msg.data == 0){ // turn left
+  if((cmd_msg.data >= 0) && (cmd_msg.data < 0.5)){ // turn left
     digitalWrite(LEFT_PIN, HIGH);
     digitalWrite(RIGHT_PIN, LOW);
-  }else if(cmd_msg.data == 1){ // don't turn
+  }else if((cmd_msg.data < 1.5) && (cmd_msg.data >= 0.5)){ // don't turn
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, LOW);
-  }else if(cmd_msg.data == 2){ // turn right
+  }else if((cmd_msg.data <= 2) && (cmd_msg.data >= 1.5)){ // turn right
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, HIGH);
   }else{
