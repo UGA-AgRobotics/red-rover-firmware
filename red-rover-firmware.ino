@@ -67,11 +67,13 @@ ros::Subscriber<std_msgs::UInt16> throttle_sub("driver/throttle", throttle_callb
 void articulation_callback(const std_msgs::UInt8 &cmd_msg); // methd def use for articulation call back
 ros::Subscriber<std_msgs::UInt16> articulation_sub("driver/articulation", articulation_callback);
 
+
 //////////////////////////////////////
 //Hardware Connections
 //////////////////////////////////////
 Servo actuator; // servo object for the linear actuator
 Servo throttle; // servo object for the engine throttle
+
 
 //////////////////////////////////////
 //Global Variables
