@@ -149,11 +149,12 @@ void setup() {
  * and distance from the encoder. It will then update ros every ros_rate
  */
 void loop() {
-//  while(!nh.connected()){
-//    digitalWrite(13, LOW);
-//    allStop();
-//  }
-//  digitalWrite(13, HIGH);
+  while(!nh.connected()){
+    digitalWrite(13, LOW);
+    allStop();
+    nh.spinOnce();
+  }
+  digitalWrite(13, HIGH);
   
   if(millis()-loop_time < ros_rate){
     bool A_val = FastGPIO::Pin<A>::isInputHigh();
