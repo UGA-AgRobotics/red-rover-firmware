@@ -35,10 +35,10 @@
 #define PIVOT_PIN 0 // pin for the potentiometer
 
 // Limits
-#define THROTTLE_MAX 150
-#define THROTTLE_MIN 90
-#define ACTUATOR_MAX 120
-#define ACTUATOR_MIN 0
+#define THROTTLE_MAX 120
+#define THROTTLE_MIN 60
+#define ACTUATOR_MAX 138
+#define ACTUATOR_MIN 65
 
 // Homes
 #define THROTTLE_HOME THROTTLE_MIN
@@ -306,4 +306,3 @@ void allStop(){
   throttle.write(THROTTLE_HOME);
   digitalWrite(13, LOW); 
 }
-
