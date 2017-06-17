@@ -221,7 +221,7 @@ void direction(bool A_val, bool B_val){
  */
 void get_angle(){
   float temp = analogRead(PIVOT_PIN);
-  angle = 30.275 * temp - 45.503;
+  angle = 0.08996 * temp - 41.9215;
 }
 
 
