@@ -100,15 +100,21 @@ void setup() {
   nh.subscribe(actuator_sub);
   nh.subscribe(throttle_sub);
 
+  // set up servos
   actuator.attach(ACTUATOR_PIN); // set pin to be used for actuator
   throttle.attach(THROTTLE_PIN); // set the pin for the throttle servo
   actuator.write(ACTUATOR_HOME); // set everyone to home that is safe
   throttle.write(THROTTLE_HOME); 
 
+  // set up turning relays
   pinMode(LEFT_PIN, OUTPUT); // set io pin for left relay to output
   pinMode(RIGHT_PIN, OUTPUT); // set io pin for right relay to output
   digitalWrite(LEFT_PIN, LOW); // make sure they are off at start
   digitalWrite(RIGHT_PIN, LOW);
+
+  // status light
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
 
   // add pins A and B to the fast GPIO, we use this to not miss encoder pulses
   FastGPIO::Pin<A>::setInput();
@@ -143,6 +149,12 @@ void setup() {
  * and distance from the encoder. It will then update ros every ros_rate
  */
 void loop() {
+  while(!nh.connected()){
+    digitalWrite(13, LOW);
+    allStop();
+  }
+  digitalWrite(13, HIGH);
+  
   if(millis()-loop_time < ros_rate){
     bool A_val = FastGPIO::Pin<A>::isInputHigh();
     bool B_val = FastGPIO::Pin<B>::isInputHigh();
@@ -273,5 +285,20 @@ void articulation_callback(const std_msgs::UInt8 &cmd_msg){
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, LOW);
   }
+}
+
+
+/*
+ * parms: 
+ * 
+ * return: void
+ * 
+ * Stops everything
+ */
+void allStop(){
+  digitalWrite(LEFT_PIN, LOW);
+  digitalWrite(RIGHT_PIN, LOW);
+  actuator.write(ACTUATOR_HOME);
+  throttle.write(THROTTLE_HOME); 
 }
 
