@@ -7,7 +7,6 @@
 #include <Servo.h>
 #include <ros.h>
 #include <std_msgs/Float64.h>
-#include <std_msgs/UInt16.h>
 #include <std_msgs/UInt8.h>
 
 /*
@@ -61,11 +60,11 @@ ros::Publisher pivot_pub("driver/pivot", &pivot); // publisher of pivot
 void actuator_callback(const std_msgs::Float64 &cmd_msg); // method def used for actuator call back 
 ros::Subscriber<std_msgs::Float64> actuator_sub("driver/linear_drive_actuator", actuator_callback);
 
-void throttle_callback(const std_msgs::UInt16 &cmd_msg); // method def used for actuator call back 
-ros::Subscriber<std_msgs::UInt16> throttle_sub("driver/throttle", throttle_callback);
+void throttle_callback(const std_msgs::UInt8 &cmd_msg); // method def used for actuator call back 
+ros::Subscriber<std_msgs::UInt8> throttle_sub("driver/throttle", throttle_callback);
 
-void articulation_callback(const std_msgs::UInt8 &cmd_msg); // methd def use for articulation call back
-ros::Subscriber<std_msgs::UInt16> articulation_sub("driver/articulation_relay", articulation_callback);
+void articulation_callback(const std_msgs::Float64 &cmd_msg); // methd def use for articulation call back
+ros::Subscriber<std_msgs::Float64> articulation_sub("driver/articulation_relay", articulation_callback);
 
 
 //////////////////////////////////////
@@ -253,7 +252,7 @@ void actuator_callback(const std_msgs::Float64 &cmd_msg){
  * 
  * Change the throttle
  */
-void throttle_callback(const std_msgs::UInt16 &cmd_msg){
+void throttle_callback(const std_msgs::UInt8 &cmd_msg){
   if(cmd_msg.data > THROTTLE_MAX){
     throttle.write(THROTTLE_MAX);
     nh.logwarn("T1");
@@ -275,7 +274,7 @@ void throttle_callback(const std_msgs::UInt16 &cmd_msg){
  * Maybe we should look at having this be set up to have a number come in but
  * it just turns on and off based on a threshold? IDk, just a thought.
  */
-void articulation_callback(const std_msgs::UInt8 &cmd_msg){
+void articulation_callback(const std_msgs::Float64 &cmd_msg){
   if(cmd_msg.data == 0){ // turn left
     digitalWrite(LEFT_PIN, HIGH);
     digitalWrite(RIGHT_PIN, LOW);
