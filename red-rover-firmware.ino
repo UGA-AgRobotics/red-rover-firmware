@@ -8,6 +8,7 @@
 #include <ros.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/UInt16.h>
+#include <std_msgs/UInt8.h>
 
 /*
  * Tire is 30.48cm radius
@@ -40,6 +41,10 @@
 #define ACTUATOR_MAX 120
 #define ACTUATOR_MIN 0
 
+// Homes
+#define THROTTLE_HOME THROTTLE_MIN
+#define ACTUATOR_HOME 90
+
 
 //////////////////////////////////////
 //ROS
@@ -59,7 +64,7 @@ ros::Subscriber<std_msgs::Float64> actuator_sub("driver/linear_drive_actuator", 
 void throttle_callback(const std_msgs::UInt16 &cmd_msg); // method def used for actuator call back 
 ros::Subscriber<std_msgs::UInt16> throttle_sub("driver/throttle", throttle_callback);
 
-void articulation_callback(const std_msgs::UInt16 &cmd_msg); // methd def use for articulation call back
+void articulation_callback(const std_msgs::UInt8 &cmd_msg); // methd def use for articulation call back
 ros::Subscriber<std_msgs::UInt16> articulation_sub("driver/articulation", articulation_callback);
 
 //////////////////////////////////////
@@ -95,9 +100,13 @@ void setup() {
 
   actuator.attach(ACTUATOR_PIN); // set pin to be used for actuator
   throttle.attach(THROTTLE_PIN); // set the pin for the throttle servo
+  actuator.write(ACTUATOR_HOME); // set everyone to home that is safe
+  throttle.write(THROTTLE_HOME); 
 
   pinMode(LEFT_PIN, OUTPUT); // set io pin for left relay to output
   pinMode(RIGHT_PIN, OUTPUT); // set io pin for right relay to output
+  digitalWrite(LEFT_PIN, LOW); // make sure they are off at start
+  digitalWrite(RIGHT_PIN, LOW);
 
   // add pins A and B to the fast GPIO, we use this to not miss encoder pulses
   FastGPIO::Pin<A>::setInput();
@@ -248,9 +257,19 @@ void throttle_callback(const std_msgs::UInt16 &cmd_msg){
  * Maybe we should look at having this be set up to have a number come in but
  * it just turns on and off based on a threshold? IDk, just a thought.
  */
-void articulation_callback(const std_msgs::Uint16 &cmd_msg){
-  if(cmd_msg.data == 2){
-    
+void articulation_callback(const std_msgs::UInt8 &cmd_msg){
+  if(cmd_msg.data == 0){
+    digitalWrite(LEFT_PIN, HIGH);
+    digitalWrite(RIGHT_PIN, LOW);
+  }else if(cmd_msg.data == 1){
+    digitalWrite(LEFT_PIN, LOW);
+    digitalWrite(RIGHT_PIN, LOW);
+  }else if(cmd_msg.data == 2){
+    digitalWrite(LEFT_PIN, LOW);
+    digitalWrite(RIGHT_PIN, HIGH);
+  }else{
+    digitalWrite(LEFT_PIN, LOW);
+    digitalWrite(RIGHT_PIN, LOW);
   }
 }
 
