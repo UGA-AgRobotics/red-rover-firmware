@@ -232,10 +232,10 @@ void get_angle(){
  * Move the actuator on the hydrolic pump
  */
 void actuator_callback(const std_msgs::Float64 &cmd_msg){
-  if(cmd_msg.data >= ACTUATOR_MAX){
+  if(cmd_msg.data > ACTUATOR_MAX){
     nh.logwarn("D1");
     actuator.write(ACTUATOR_MAX);
-  }else if(cmd_msg.data <= ACTUATOR_MIN){
+  }else if(cmd_msg.data < ACTUATOR_MIN){
     actuator.write(ACTUATOR_MIN);
     nh.logwarn("D2");
   }else{
@@ -253,10 +253,10 @@ void actuator_callback(const std_msgs::Float64 &cmd_msg){
  * Change the throttle
  */
 void throttle_callback(const std_msgs::UInt16 &cmd_msg){
-  if(cmd_msg.data >= THROTTLE_MAX){
+  if(cmd_msg.data > THROTTLE_MAX){
     throttle.write(THROTTLE_MAX);
     nh.logwarn("T1");
-  }else if(cmd_msg.data <= THROTTLE_MIN){
+  }else if(cmd_msg.data < THROTTLE_MIN){
     throttle.write(THROTTLE_MIN);
     nh.logwarn("T2");
   }else{
@@ -275,13 +275,13 @@ void throttle_callback(const std_msgs::UInt16 &cmd_msg){
  * it just turns on and off based on a threshold? IDk, just a thought.
  */
 void articulation_callback(const std_msgs::UInt8 &cmd_msg){
-  if(cmd_msg.data == 0){
+  if(cmd_msg.data == 0){ // turn left
     digitalWrite(LEFT_PIN, HIGH);
     digitalWrite(RIGHT_PIN, LOW);
-  }else if(cmd_msg.data == 1){
+  }else if(cmd_msg.data == 1){ // don't turn
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, LOW);
-  }else if(cmd_msg.data == 2){
+  }else if(cmd_msg.data == 2){ // turn right
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, HIGH);
   }else{
