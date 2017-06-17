@@ -65,7 +65,7 @@ void throttle_callback(const std_msgs::UInt16 &cmd_msg); // method def used for 
 ros::Subscriber<std_msgs::UInt16> throttle_sub("driver/throttle", throttle_callback);
 
 void articulation_callback(const std_msgs::UInt8 &cmd_msg); // methd def use for articulation call back
-ros::Subscriber<std_msgs::UInt16> articulation_sub("driver/articulation", articulation_callback);
+ros::Subscriber<std_msgs::UInt16> articulation_sub("driver/articulation_relay", articulation_callback);
 
 
 //////////////////////////////////////
