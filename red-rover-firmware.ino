@@ -99,6 +99,7 @@ void setup() {
   nh.advertise(pivot_pub);
   nh.subscribe(actuator_sub);
   nh.subscribe(throttle_sub);
+  nh.subscribe(articulation_sub);
 
   // set up servos
   actuator.attach(ACTUATOR_PIN); // set pin to be used for actuator
