@@ -28,6 +28,8 @@
 #define B 6 // pin number of B pulse
 #define ACTUATOR_PIN 3 // pin for the linear servo singnal
 #define THROTTLE_PIN 4 // pin for throttle servo
+#define LEFT_PIN 7 // pin for relay to turn left
+#define RIGHT_PIN 8 // pin for relay to turn right
 
 // Analog pins
 #define PIVOT_PIN 0 // pin for the potentiometer
@@ -51,14 +53,20 @@ ros::Publisher encoder_pub("driver/encoder_velocity", &vel); // the publisher of
 std_msgs::Float64 pivot; // ros meesage for the amount of pivot
 ros::Publisher pivot_pub("driver/pivot", &pivot); // publisher of pivot
 
-Servo actuator; // servo object for the linear actuator
 void actuator_callback(const std_msgs::Float64 &cmd_msg); // method def used for actuator call back 
 ros::Subscriber<std_msgs::Float64> actuator_sub("driver/linear_drive_actuator", actuator_callback);
 
-Servo throttle; // servo object for the engine throttle
 void throttle_callback(const std_msgs::UInt16 &cmd_msg); // method def used for actuator call back 
 ros::Subscriber<std_msgs::UInt16> throttle_sub("driver/throttle", throttle_callback);
 
+void articulation_callback(const std_msgs::UInt16 &cmd_msg); // methd def use for articulation call back
+ros::Subscriber<std_msgs::UInt16> articulation_sub("driver/articulation", articulation_callback);
+
+//////////////////////////////////////
+//Hardware Connections
+//////////////////////////////////////
+Servo actuator; // servo object for the linear actuator
+Servo throttle; // servo object for the engine throttle
 
 //////////////////////////////////////
 //Global Variables
@@ -87,6 +95,9 @@ void setup() {
 
   actuator.attach(ACTUATOR_PIN); // set pin to be used for actuator
   throttle.attach(THROTTLE_PIN); // set the pin for the throttle servo
+
+  pinMode(LEFT_PIN, OUTPUT); // set io pin for left relay to output
+  pinMode(RIGHT_PIN, OUTPUT); // set io pin for right relay to output
 
   // add pins A and B to the fast GPIO, we use this to not miss encoder pulses
   FastGPIO::Pin<A>::setInput();
@@ -237,7 +248,9 @@ void throttle_callback(const std_msgs::UInt16 &cmd_msg){
  * Maybe we should look at having this be set up to have a number come in but
  * it just turns on and off based on a threshold? IDk, just a thought.
  */
-void articulation_callback(const std_msgs::){
-
+void articulation_callback(const std_msgs::Uint16 &cmd_msg){
+  if(cmd_msg.data == 2){
+    
+  }
 }
 
