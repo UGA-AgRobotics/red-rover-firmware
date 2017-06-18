@@ -39,6 +39,7 @@
 #define THROTTLE_MIN 60
 #define ACTUATOR_MAX 138
 #define ACTUATOR_MIN 65
+#define ACTUATOR_SCALE 90
 
 // Homes
 #define THROTTLE_HOME THROTTLE_MIN
@@ -157,9 +158,11 @@ void loop() {
   }
   digitalWrite(13, HIGH);
   bool change = false;
+  bool A_val = false;
+  bool B_val = false;
   while(millis()-loop_time < ros_rate){
-    bool A_val = FastGPIO::Pin<A>::isInputHigh();
-    bool B_val = FastGPIO::Pin<B>::isInputHigh();
+    A_val = FastGPIO::Pin<A>::isInputHigh();
+    B_val = FastGPIO::Pin<B>::isInputHigh();
     
     if((A_last_val != A_val) || (B_last_val != B_val)){
       count++; 
@@ -176,18 +179,16 @@ void loop() {
       }
       count = 0;
       last_time = millis();
-    }
-    //Update data
-    if(change){
+      //Update data
       vel.data=velocity;
-    }else{
-      vel.data=0;
     }
-    get_angle();
-    pivot.data = angle;
-    
+    if(!change){
+      vel.data = 0;
+    }
   }
   loop_time = millis();
+  get_angle();
+  pivot.data = angle;
   encoder_pub.publish(&vel);
   pivot_pub.publish(&pivot);
   nh.spinOnce();
@@ -237,14 +238,14 @@ void get_angle(){
  * Move the actuator on the hydrolic pump
  */
 void actuator_callback(const std_msgs::Float64 &cmd_msg){
-  if(cmd_msg.data > ACTUATOR_MAX){
+  if((cmd_msg.data+ACTUATOR_SCALE) > ACTUATOR_MAX){
     nh.logwarn("DH");
     actuator.write(ACTUATOR_MAX);
-  }else if(cmd_msg.data < ACTUATOR_MIN){
+  }else if((cmd_msg.data+ACTUATOR_SCALE) < ACTUATOR_MIN){
     actuator.write(ACTUATOR_MIN);
     nh.logwarn("DL");
   }else{
-    actuator.write(cmd_msg.data);
+    actuator.write((cmd_msg.data+ACTUATOR_SCALE));
   }
 }
 
