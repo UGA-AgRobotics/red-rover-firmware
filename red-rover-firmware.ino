@@ -238,11 +238,11 @@ void get_angle(){
  */
 void actuator_callback(const std_msgs::Float64 &cmd_msg){
   if(cmd_msg.data > ACTUATOR_MAX){
-    nh.logwarn("D1");
+    nh.logwarn("DH");
     actuator.write(ACTUATOR_MAX);
   }else if(cmd_msg.data < ACTUATOR_MIN){
     actuator.write(ACTUATOR_MIN);
-    nh.logwarn("D2");
+    nh.logwarn("DL");
   }else{
     actuator.write(cmd_msg.data);
   }
@@ -260,10 +260,10 @@ void actuator_callback(const std_msgs::Float64 &cmd_msg){
 void throttle_callback(const std_msgs::UInt8 &cmd_msg){
   if(cmd_msg.data > THROTTLE_MAX){
     throttle.write(THROTTLE_MAX);
-    nh.logwarn("T1");
+    nh.logwarn("TH");
   }else if(cmd_msg.data < THROTTLE_MIN){
     throttle.write(THROTTLE_MIN);
-    nh.logwarn("T2");
+    nh.logwarn("TL");
   }else{
     throttle.write(cmd_msg.data);
   }
@@ -289,8 +289,8 @@ void articulation_callback(const std_msgs::Float64 &cmd_msg){
   }else if((cmd_msg.data <= 2) && (cmd_msg.data >= 1.5)){ // turn right
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, HIGH);
-  }else{
-    nh.logwarn("A1");
+  }else if(cmd_msg.data > 2 || cmd_msg.data < 0){
+    nh.logwarn("AO");
     digitalWrite(LEFT_PIN, LOW);
     digitalWrite(RIGHT_PIN, LOW);
   }
