@@ -149,14 +149,15 @@ void setup() {
  * and distance from the encoder. It will then update ros every ros_rate
  */
 void loop() {
+  //safty code, will stop everything if loss connection to ROS
   while(!nh.connected()){
     digitalWrite(13, LOW);
     allStop();
     nh.spinOnce();
   }
   digitalWrite(13, HIGH);
-  
-  if(millis()-loop_time < ros_rate){
+  bool change = false;
+  while(millis()-loop_time < ros_rate){
     bool A_val = FastGPIO::Pin<A>::isInputHigh();
     bool B_val = FastGPIO::Pin<B>::isInputHigh();
     
@@ -165,8 +166,8 @@ void loop() {
       direction(A_val,B_val);
     }
 
-// TODO need to figure out how to clear velocity  
     if(count > 128){
+      change = true;
       distance += 23.9;
       if(state == 'F'){
         velocity = (distance / (millis()-last_time))/100;
@@ -177,16 +178,19 @@ void loop() {
       last_time = millis();
     }
     //Update data
-    vel.data=velocity;
+    if(change){
+      vel.data=velocity;
+    }else{
+      vel.data=0;
+    }
     get_angle();
     pivot.data = angle;
     
-  }else{
-    loop_time = millis();
-    encoder_pub.publish(&vel);
-    pivot_pub.publish(&pivot);
-    nh.spinOnce();
   }
+  loop_time = millis();
+  encoder_pub.publish(&vel);
+  pivot_pub.publish(&pivot);
+  nh.spinOnce();
 }
 
 
